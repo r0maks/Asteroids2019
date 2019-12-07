@@ -1,26 +1,20 @@
-const SPACEBAR = 32;
-const UP_ARROW = 38;
-const LEFT_ARROW = 37;
-const DOWN_ARROW = 40;
-const RIGHT_ARROW = 39;
-const ASTEROIDS_MAX = 30;
-
 var sketch = (p: p5) => {
 
     let ship: Ship;
     let missiles = [] as Missle[];
     let asteroids = [] as Asteroid[];
+    let shipImg: p5.Image;
+    let asteroid1: p5.Image;
 
     p.preload = () => {
-
+        shipImg = p.loadImage(SHIP_IMG);
+        asteroid1 = p.loadImage(ASTEROID_1);
     }
 
     p.setup = () => {
         p.createCanvas(p.windowWidth, p.windowHeight);
         p.noStroke();
-        // start the ship in the middle of the screen
-        ship = new Ship(p.windowWidth / 2, p.windowHeight / 2);
-
+        ship = new Ship(p);
     }
 
     p.windowResized = () => {
@@ -28,14 +22,14 @@ var sketch = (p: p5) => {
     }
 
     p.draw = () => {
-        p.background(42);
+        p.background(BACKGROUND);
         renderAll();
-        handleArrowKeys();
+        handleKeyboardInput();
     }
 
 
     function renderAll() {
-        ship.draw(p);
+        ship.draw(p, shipImg);
         handleCollisions();
         showHealth();
         handleMissles();
@@ -47,7 +41,7 @@ var sketch = (p: p5) => {
         missiles = missiles.filter(m => m.yPos <= p.windowHeight);
         missiles.forEach(missle => {
             missle.draw(p);
-            missle.move(p);
+            missle.move();
         });
     }
 
@@ -66,7 +60,7 @@ var sketch = (p: p5) => {
             asteroids.push(new Asteroid(p));
         }
         asteroids.forEach(a => {
-            a.draw(p);
+            a.draw(p, asteroid1);
             a.move(p);
         });
     }
@@ -80,7 +74,7 @@ var sketch = (p: p5) => {
         }
     }
 
-    function handleArrowKeys() {
+    function handleKeyboardInput() {
         // up
         if (p.keyIsDown(UP_ARROW)) {
             ship.moveUp();

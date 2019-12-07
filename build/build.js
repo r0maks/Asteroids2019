@@ -1,97 +1,25 @@
-var Morph = (function () {
-    function Morph() {
+var Asteroid = (function () {
+    function Asteroid(p) {
+        this.windowHeight = p.windowHeight;
+        this.windowWidth = p.windowWidth;
+        this.reset(p);
     }
-    Morph.prototype.setup = function (p) {
-        this.shapes = [];
-        this.currentShape = 0;
-        this.shapes.push({ points: Shapes.circle(p, 100), color: p.color('#009CDF') });
-        this.shapes.push({ points: Shapes.circle(p, 150), color: p.color(255, 204, 0) });
-        this.shapes.push({ points: Shapes.square(p, 50), color: p.color(175, 100, 220) });
-        this.morph = new Array();
-        var highestCount = 0;
-        for (var i = 0; i < this.shapes.length; i++) {
-            highestCount = Math.max(highestCount, this.shapes[i].points.length);
-        }
-        for (var i = 0; i < highestCount; i++) {
-            this.morph.push(new p5.Vector());
+    Asteroid.prototype.move = function (p) {
+        this.yPos = this.yPos + this.speed;
+        if (this.yPos > this.windowHeight) {
+            this.reset(p);
         }
     };
-    Morph.prototype.recalc = function (p) {
-        var totalDistance = 0;
-        var points = this.shapes[this.currentShape].points;
-        for (var i = 0; i < points.length; i++) {
-            var v1 = points[i];
-            var v2 = this.morph[i];
-            v2.lerp(v1, 0.1);
-            totalDistance += p5.Vector.dist(v1, v2);
-        }
-        if (totalDistance < 0.1) {
-            this.currentShape++;
-            if (this.currentShape >= this.shapes.length) {
-                this.currentShape = 0;
-            }
-        }
+    Asteroid.prototype.reset = function (p) {
+        this.xPos = p.random(0, this.windowWidth);
+        this.yPos = -50;
+        this.size = p.random(10, 50);
+        this.speed = p.random(1, 5);
     };
-    Morph.prototype.draw = function (p) {
-        this.recalc(p);
-        var color = this.shapes[this.currentShape].color;
-        var points = this.shapes[this.currentShape].points;
-        p.translate(p.width / 2, p.height / 2);
-        p.strokeWeight(4);
-        p.beginShape();
-        p.noFill();
-        p.stroke(color);
-        for (var i = 0; i < points.length; i++) {
-            var v = this.morph[i];
-            p.vertex(v.x, v.y);
-        }
-        p.endShape(p.CLOSE);
+    Asteroid.prototype.draw = function (p, image) {
+        p.image(image, this.xPos, this.yPos, this.size, this.size);
     };
-    return Morph;
-}());
-var Shapes = (function () {
-    function Shapes() {
-    }
-    Shapes.circle = function (p, size) {
-        var points = new Array();
-        for (var angle = 0; angle < 360; angle += 9) {
-            var v = p5.Vector.fromAngle(p.radians(angle - 135));
-            v.mult(size);
-            points.push(v);
-        }
-        return points;
-    };
-    Shapes.square = function (p, size) {
-        var points = new Array();
-        for (var x = -size; x < size; x += 10) {
-            points.push(p.createVector(x, -size));
-        }
-        for (var y = -size; y < size; y += 10) {
-            points.push(p.createVector(size, y));
-        }
-        for (var x = size; x > -size; x -= 10) {
-            points.push(p.createVector(x, size));
-        }
-        for (var y = size; y > -size; y -= 10) {
-            points.push(p.createVector(-size, y));
-        }
-        return points;
-    };
-    Shapes.star = function (p, x, y, radius1, radius2, npoints) {
-        var angle = p.TWO_PI / npoints;
-        var halfAngle = angle / 2.0;
-        var points = new Array();
-        for (var a = 0; a < p.TWO_PI; a += angle) {
-            var sx = x + p.cos(a) * radius2;
-            var sy = y + p.sin(a) * radius2;
-            points.push(p.createVector(sx, sy));
-            sx = x + p.cos(a + halfAngle) * radius1;
-            sy = y + p.sin(a + halfAngle) * radius1;
-            points.push(p.createVector(sx, sy));
-        }
-        return points;
-    };
-    return Shapes;
+    return Asteroid;
 }());
 var SPACEBAR = 32;
 var UP_ARROW = 38;
@@ -99,27 +27,124 @@ var LEFT_ARROW = 37;
 var DOWN_ARROW = 40;
 var RIGHT_ARROW = 39;
 var ASTEROIDS_MAX = 30;
+var BACKGROUND = 42;
+var MoveDirections;
+(function (MoveDirections) {
+    MoveDirections[MoveDirections["Up"] = 1] = "Up";
+    MoveDirections[MoveDirections["Down"] = 2] = "Down";
+    MoveDirections[MoveDirections["Left"] = 3] = "Left";
+    MoveDirections[MoveDirections["Right"] = 4] = "Right";
+})(MoveDirections || (MoveDirections = {}));
+var SHIP_IMG = 'assets/ship.png';
+var ASTEROID_1 = 'assets/asteroid1.png';
+var Missle = (function () {
+    function Missle(ship) {
+        this.xPos = ship.xPos + (ship.width / 2);
+        this.yPos = ship.yPos;
+    }
+    Missle.prototype.draw = function (p) {
+        p.push();
+        p.fill(255, 69, 0);
+        p.ellipse(this.xPos, this.yPos, 3, 20);
+        p.pop();
+    };
+    Missle.prototype.move = function () {
+        this.yPos = this.yPos - 20;
+    };
+    Missle.prototype.collidesWith = function (asteroid) {
+        return (this.xPos - asteroid.xPos) * (this.xPos - asteroid.xPos) +
+            (this.yPos - asteroid.yPos) * (this.yPos - asteroid.yPos)
+            === (20 + asteroid.size) * (20 + asteroid.size);
+    };
+    return Missle;
+}());
+var Ship = (function () {
+    function Ship(p) {
+        this.width = 75;
+        this.height = 75;
+        this.lastDirections = [];
+        this.windowHeight = p.windowHeight;
+        this.windowWidth = p.windowWidth;
+        this.xPos = this.windowWidth / 2;
+        this.yPos = this.windowHeight / 2;
+        this.health = 100;
+        this.xSpeed = 5;
+        this.ySpeed = 5;
+    }
+    Ship.prototype.draw = function (p, image) {
+        this.handleFloat();
+        p.image(image, this.xPos, this.yPos, this.width, this.height);
+    };
+    Ship.prototype.moveRight = function () {
+        this.xPos = this.xPos + this.xSpeed;
+        this.addDirectionHistory(MoveDirections.Right);
+    };
+    Ship.prototype.moveLeft = function () {
+        this.xPos = this.xPos - this.xSpeed;
+        this.addDirectionHistory(MoveDirections.Left);
+    };
+    Ship.prototype.moveUp = function () {
+        this.yPos = this.yPos - this.ySpeed;
+        this.addDirectionHistory(MoveDirections.Up);
+    };
+    Ship.prototype.moveDown = function () {
+        this.yPos = this.yPos + this.ySpeed;
+        this.addDirectionHistory(MoveDirections.Down);
+    };
+    Ship.prototype.handleFloat = function () {
+        var _this = this;
+        this.lastDirections.slice().reverse().forEach(function (direction) {
+            switch (direction) {
+                case MoveDirections.Up:
+                    _this.yPos--;
+                    break;
+                case MoveDirections.Down:
+                    _this.yPos++;
+                    break;
+                case MoveDirections.Right:
+                    _this.xPos++;
+                    break;
+                case MoveDirections.Left:
+                    _this.xPos--;
+                    break;
+                default:
+                    break;
+            }
+        });
+    };
+    Ship.prototype.addDirectionHistory = function (direction) {
+        if (this.lastDirections.length > 2) {
+            this.lastDirections.shift();
+        }
+        this.lastDirections.push(direction);
+    };
+    return Ship;
+}());
 var sketch = function (p) {
     var ship;
     var missiles = [];
     var asteroids = [];
+    var shipImg;
+    var asteroid1;
     p.preload = function () {
+        shipImg = p.loadImage(SHIP_IMG);
+        asteroid1 = p.loadImage(ASTEROID_1);
     };
     p.setup = function () {
         p.createCanvas(p.windowWidth, p.windowHeight);
         p.noStroke();
-        ship = new Ship(p.windowWidth / 2, p.windowHeight / 2);
+        ship = new Ship(p);
     };
     p.windowResized = function () {
         p.resizeCanvas(p.windowWidth, p.windowHeight);
     };
     p.draw = function () {
-        p.background(42);
+        p.background(BACKGROUND);
         renderAll();
-        handleArrowKeys();
+        handleKeyboardInput();
     };
     function renderAll() {
-        ship.draw(p);
+        ship.draw(p, shipImg);
         handleCollisions();
         showHealth();
         handleMissles();
@@ -129,7 +154,7 @@ var sketch = function (p) {
         missiles = missiles.filter(function (m) { return m.yPos <= p.windowHeight; });
         missiles.forEach(function (missle) {
             missle.draw(p);
-            missle.move(p);
+            missle.move();
         });
     }
     function handleCollisions() {
@@ -146,7 +171,7 @@ var sketch = function (p) {
             asteroids.push(new Asteroid(p));
         }
         asteroids.forEach(function (a) {
-            a.draw(p);
+            a.draw(p, asteroid1);
             a.move(p);
         });
     }
@@ -156,7 +181,7 @@ var sketch = function (p) {
             missiles.push(new Missle(ship));
         }
     };
-    function handleArrowKeys() {
+    function handleKeyboardInput() {
         if (p.keyIsDown(UP_ARROW)) {
             ship.moveUp();
         }
@@ -179,74 +204,6 @@ var sketch = function (p) {
     }
 };
 var sketchP = new p5(sketch);
-var Ship = (function () {
-    function Ship(x, y) {
-        this.xPos = x;
-        this.yPos = y;
-        this.health = 100;
-        this.speed = 5;
-    }
-    Ship.prototype.draw = function (p) {
-        p.triangle(this.xPos + Ship.width, this.yPos + Ship.height, this.xPos - Ship.width, this.yPos + Ship.height, this.xPos, this.yPos - Ship.height);
-    };
-    Ship.prototype.moveRight = function () {
-        this.xPos = this.xPos + this.speed;
-    };
-    Ship.prototype.moveLeft = function () {
-        this.xPos = this.xPos - this.speed;
-    };
-    Ship.prototype.moveUp = function () {
-        this.yPos = this.yPos - this.speed;
-    };
-    Ship.prototype.moveDown = function () {
-        this.yPos = this.yPos + this.speed;
-    };
-    Ship.height = 25;
-    Ship.width = 20;
-    return Ship;
-}());
-var Asteroid = (function () {
-    function Asteroid(p) {
-        this.reset(p);
-    }
-    Asteroid.prototype.move = function (p) {
-        this.yPos = this.yPos + this.speed;
-        if (this.yPos > p.windowHeight) {
-            this.reset(p);
-        }
-    };
-    Asteroid.prototype.reset = function (p) {
-        this.xPos = p.random(0, p.windowWidth);
-        this.yPos = 0;
-        this.size = p.random(10, 30);
-        this.speed = p.random(1, 5);
-    };
-    Asteroid.prototype.draw = function (p) {
-        p.ellipse(this.xPos, this.yPos, this.size, this.size);
-    };
-    return Asteroid;
-}());
-var Missle = (function () {
-    function Missle(ship) {
-        this.xPos = ship.xPos;
-        this.yPos = ship.yPos;
-    }
-    Missle.prototype.draw = function (p) {
-        p.push();
-        p.fill(255, 69, 0);
-        p.ellipse(this.xPos, this.yPos, 3, 20);
-        p.pop();
-    };
-    Missle.prototype.move = function () {
-        this.yPos = this.yPos - 20;
-    };
-    Missle.prototype.collidesWith = function (asteroid) {
-        return (this.xPos - asteroid.xPos) * (this.xPos - asteroid.xPos) +
-            (this.yPos - asteroid.yPos) * (this.yPos - asteroid.yPos)
-            === (20 + asteroid.size) * (20 + asteroid.size);
-    };
-    return Missle;
-}());
 var Star = (function () {
     function Star(x, y) {
         this.xPos = x;
