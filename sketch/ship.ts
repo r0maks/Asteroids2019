@@ -2,7 +2,6 @@ class Ship {
 
     public width = 75;
     public height = 75;
-    // represents the tip of the space ship
     public xPos: number;
     public yPos: number;
     public health: number;
@@ -18,13 +17,14 @@ class Ship {
         this.xPos = this.windowWidth / 2;
         this.yPos = this.windowHeight / 2;
         this.health = 100;
-        this.xSpeed = 5;
+        this.xSpeed = 3;
         this.ySpeed = 5;
     }
 
     public draw(p: p5, image: p5.Image) {
         this.handleFloat();
         p.image(image, this.xPos, this.yPos, this.width, this.height);
+        // TODO: handle off canvas limits
     }
 
     public moveRight() {

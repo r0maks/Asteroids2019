@@ -6,7 +6,7 @@ class Asteroid {
     public windowHeight: number;
     public windowWidth: number;
 
-    constructor(p: p5) {
+    constructor(p: p5, public type: number) {
         this.windowHeight = p.windowHeight;
         this.windowWidth = p.windowWidth;
         this.reset(p);
@@ -22,8 +22,8 @@ class Asteroid {
 
     public reset(p: p5) {
         this.xPos = p.random(0, this.windowWidth);
-        this.yPos = -50;
-        this.size = p.random(10, 50);
+        this.yPos = -100;
+        this.size = p.random(30, 60);
         this.speed = p.random(1, 5);
     }
 

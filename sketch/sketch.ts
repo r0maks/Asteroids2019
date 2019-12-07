@@ -3,12 +3,18 @@ var sketch = (p: p5) => {
     let ship: Ship;
     let missiles = [] as Missle[];
     let asteroids = [] as Asteroid[];
+    let stars = [] as Star[];
     let shipImg: p5.Image;
+    let asteroidImages = [] as p5.Image[];
     let asteroid1: p5.Image;
+    let asteroidLimit: number;
 
     p.preload = () => {
         shipImg = p.loadImage(SHIP_IMG);
-        asteroid1 = p.loadImage(ASTEROID_1);
+        asteroidLimit = ASTEROIDS_MAX;
+        ASTEROID_TYPES.forEach(img => {
+            asteroidImages.push(p.loadImage(img));
+        });
     }
 
     p.setup = () => {
@@ -27,13 +33,13 @@ var sketch = (p: p5) => {
         handleKeyboardInput();
     }
 
-
     function renderAll() {
         ship.draw(p, shipImg);
         handleCollisions();
         showHealth();
         handleMissles();
         handleAsteroids();
+        handleStars();
     }
 
     function handleMissles() {
@@ -56,12 +62,22 @@ var sketch = (p: p5) => {
     }
 
     function handleAsteroids() {
-        while (asteroids.length < ASTEROIDS_MAX) {
-            asteroids.push(new Asteroid(p));
+        while (asteroids.length < asteroidLimit) {
+            asteroids.push(new Asteroid(p, p.floor(p.random() * asteroidImages.length)));
         }
         asteroids.forEach(a => {
-            a.draw(p, asteroid1);
+            a.draw(p, asteroidImages[a.type]);
             a.move(p);
+        });
+    }
+
+    function handleStars() {
+        while (stars.length < STARS_MAX) {
+            stars.push(new Star(p));
+        }
+        stars.forEach(s => {
+            s.draw(p);
+            s.move();
         });
     }
 
