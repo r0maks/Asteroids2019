@@ -3,13 +3,13 @@ const UP_ARROW = 38;
 const LEFT_ARROW = 37;
 const DOWN_ARROW = 40;
 const RIGHT_ARROW = 39;
-const STARS_LIMIT = 500;
+const ASTEROIDS_MAX = 30;
 
 var sketch = (p: p5) => {
 
     let ship: Ship;
     let missiles = [] as Missle[];
-    let stars = [] as Star[];
+    let asteroids = [] as Asteroid[];
 
     p.preload = () => {
 
@@ -36,32 +36,46 @@ var sketch = (p: p5) => {
 
     function renderAll() {
         ship.draw(p);
+        handleCollisions();
         showHealth();
         handleMissles();
-        handleStars();
+        handleAsteroids();
     }
 
     function handleMissles() {
-
         // filter out the missles that are off screen
         missiles = missiles.filter(m => m.yPos <= p.windowHeight);
-
         missiles.forEach(missle => {
-            missle.yPos = missle.yPos - 20;
             missle.draw(p);
+            missle.move(p);
         });
     }
 
-    function handleStars() {
-        
+    function handleCollisions() {
+        missiles.forEach(missle => {
+            asteroids.forEach(asteroid => {
+                if (missle.collidesWith(asteroid)) {
+                    asteroid.reset(p);
+                }
+            });
+        });
+    }
+
+    function handleAsteroids() {
+        while (asteroids.length < ASTEROIDS_MAX) {
+            asteroids.push(new Asteroid(p));
+        }
+        asteroids.forEach(a => {
+            a.draw(p);
+            a.move(p);
+        });
     }
 
     p.keyPressed = () => {
         console.log(p.keyCode);
-
         if (p.keyCode === SPACEBAR) {
             missiles.push(
-                new Missle(ship.xPos + p.random(0, 3), ship.yPos)
+                new Missle(ship)
             );
         }
     }
@@ -69,19 +83,19 @@ var sketch = (p: p5) => {
     function handleArrowKeys() {
         // up
         if (p.keyIsDown(UP_ARROW)) {
-            ship.yPos = ship.yPos - 5;
+            ship.moveUp();
         }
         // down 
         if (p.keyIsDown(DOWN_ARROW)) {
-            ship.yPos = ship.yPos + 5;
+            ship.moveDown();
         }
         // left
         if (p.keyIsDown(LEFT_ARROW)) {
-            ship.xPos = ship.xPos - 5;
+            ship.moveLeft();
         }
         // right
         if (p.keyIsDown(RIGHT_ARROW)) {
-            ship.xPos = ship.xPos + 5;
+            ship.moveRight();
         }
     }
 

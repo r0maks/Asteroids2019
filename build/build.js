@@ -98,11 +98,11 @@ var UP_ARROW = 38;
 var LEFT_ARROW = 37;
 var DOWN_ARROW = 40;
 var RIGHT_ARROW = 39;
-var STARS_LIMIT = 500;
+var ASTEROIDS_MAX = 30;
 var sketch = function (p) {
     var ship;
     var missiles = [];
-    var stars = [];
+    var asteroids = [];
     p.preload = function () {
     };
     p.setup = function () {
@@ -120,37 +120,54 @@ var sketch = function (p) {
     };
     function renderAll() {
         ship.draw(p);
+        handleCollisions();
         showHealth();
         handleMissles();
-        handleStars();
+        handleAsteroids();
     }
     function handleMissles() {
         missiles = missiles.filter(function (m) { return m.yPos <= p.windowHeight; });
         missiles.forEach(function (missle) {
-            missle.yPos = missle.yPos - 20;
             missle.draw(p);
+            missle.move(p);
         });
     }
-    function handleStars() {
+    function handleCollisions() {
+        missiles.forEach(function (missle) {
+            asteroids.forEach(function (asteroid) {
+                if (missle.collidesWith(asteroid)) {
+                    asteroid.reset(p);
+                }
+            });
+        });
+    }
+    function handleAsteroids() {
+        while (asteroids.length < ASTEROIDS_MAX) {
+            asteroids.push(new Asteroid(p));
+        }
+        asteroids.forEach(function (a) {
+            a.draw(p);
+            a.move(p);
+        });
     }
     p.keyPressed = function () {
         console.log(p.keyCode);
         if (p.keyCode === SPACEBAR) {
-            missiles.push(new Missle(ship.xPos + p.random(0, 3), ship.yPos));
+            missiles.push(new Missle(ship));
         }
     };
     function handleArrowKeys() {
         if (p.keyIsDown(UP_ARROW)) {
-            ship.yPos = ship.yPos - 5;
+            ship.moveUp();
         }
         if (p.keyIsDown(DOWN_ARROW)) {
-            ship.yPos = ship.yPos + 5;
+            ship.moveDown();
         }
         if (p.keyIsDown(LEFT_ARROW)) {
-            ship.xPos = ship.xPos - 5;
+            ship.moveLeft();
         }
         if (p.keyIsDown(RIGHT_ARROW)) {
-            ship.xPos = ship.xPos + 5;
+            ship.moveRight();
         }
     }
     function showHealth() {
@@ -167,35 +184,66 @@ var Ship = (function () {
         this.xPos = x;
         this.yPos = y;
         this.health = 100;
+        this.speed = 5;
     }
     Ship.prototype.draw = function (p) {
         p.triangle(this.xPos + Ship.width, this.yPos + Ship.height, this.xPos - Ship.width, this.yPos + Ship.height, this.xPos, this.yPos - Ship.height);
+    };
+    Ship.prototype.moveRight = function () {
+        this.xPos = this.xPos + this.speed;
+    };
+    Ship.prototype.moveLeft = function () {
+        this.xPos = this.xPos - this.speed;
+    };
+    Ship.prototype.moveUp = function () {
+        this.yPos = this.yPos - this.speed;
+    };
+    Ship.prototype.moveDown = function () {
+        this.yPos = this.yPos + this.speed;
     };
     Ship.height = 25;
     Ship.width = 20;
     return Ship;
 }());
 var Asteroid = (function () {
-    function Asteroid(x, y, size) {
-        this.xPos = x;
-        this.yPos = y;
-        this.size = size;
+    function Asteroid(p) {
+        this.reset(p);
     }
+    Asteroid.prototype.move = function (p) {
+        this.yPos = this.yPos + this.speed;
+        if (this.yPos > p.windowHeight) {
+            this.reset(p);
+        }
+    };
+    Asteroid.prototype.reset = function (p) {
+        this.xPos = p.random(0, p.windowWidth);
+        this.yPos = 0;
+        this.size = p.random(10, 30);
+        this.speed = p.random(1, 5);
+    };
     Asteroid.prototype.draw = function (p) {
         p.ellipse(this.xPos, this.yPos, this.size, this.size);
     };
     return Asteroid;
 }());
 var Missle = (function () {
-    function Missle(x, y) {
-        this.xPos = x;
-        this.yPos = y;
+    function Missle(ship) {
+        this.xPos = ship.xPos;
+        this.yPos = ship.yPos;
     }
     Missle.prototype.draw = function (p) {
         p.push();
         p.fill(255, 69, 0);
         p.ellipse(this.xPos, this.yPos, 3, 20);
         p.pop();
+    };
+    Missle.prototype.move = function () {
+        this.yPos = this.yPos - 20;
+    };
+    Missle.prototype.collidesWith = function (asteroid) {
+        return (this.xPos - asteroid.xPos) * (this.xPos - asteroid.xPos) +
+            (this.yPos - asteroid.yPos) * (this.yPos - asteroid.yPos)
+            === (20 + asteroid.size) * (20 + asteroid.size);
     };
     return Missle;
 }());
