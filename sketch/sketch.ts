@@ -34,12 +34,12 @@ var sketch = (p: p5) => {
     }
 
     function renderAll() {
+        handleStars();
         ship.draw(p, shipImg);
         handleCollisions();
         showHealth();
         handleMissles();
         handleAsteroids();
-        handleStars();
     }
 
     function handleMissles() {
@@ -54,7 +54,7 @@ var sketch = (p: p5) => {
     function handleCollisions() {
         missiles.forEach(missle => {
             asteroids.forEach(asteroid => {
-                if (missle.collidesWith(asteroid)) {
+                if (missle.collidesWith(asteroid, p)) {
                     asteroid.reset(p);
                 }
             });

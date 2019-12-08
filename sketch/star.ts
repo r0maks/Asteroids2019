@@ -5,24 +5,26 @@ class Star {
     public height: number;
     public speed: number;
     public windowHeight: number;
+    public windowWidth: number;
     constructor(p: p5) {
-        this.width = p.random(1, 3);
-        this.height = p.random(15, 20);
+        this.width = p.random(15, 60);
+        this.height = p.random(1, 2);
         this.windowHeight = p.windowHeight;
-        this.xPos = p.random(0, p.windowWidth);
-        this.yPos = p.random(-100, p.windowHeight);
-        this.speed = p.random(0, 8);
+        this.windowWidth = p.windowWidth;
+        this.xPos = p.random(0, this.windowWidth);
+        this.yPos = p.random(-100, this.windowHeight);
+        this.speed = p.random(10, 30);
     }
     public draw(p: p5) {
         p.push();
-        p.fill(42);
+        p.fill(80);
         p.ellipse(this.xPos, this.yPos, this.width, this.height);
         p.pop();
     }
     public move() {
-        this.yPos = this.yPos + this.speed;
-        if (this.yPos > this.windowHeight) {
-            this.yPos = 0;
+        this.xPos = this.xPos - this.speed;
+        if (this.xPos < 0) {
+            this.xPos = this.windowWidth;
         }
     }
 }

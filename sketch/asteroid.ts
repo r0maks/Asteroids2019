@@ -13,15 +13,15 @@ class Asteroid {
     }
 
     public move(p: p5) {
-        this.yPos = this.yPos + this.speed;
-        if (this.yPos > this.windowHeight) {
+        this.xPos = this.xPos - this.speed;
+        if (this.xPos < 0) {
             this.reset(p);
         }
     }
 
     public reset(p: p5) {
-        this.xPos = p.random(0, this.windowWidth);
-        this.yPos = p.random(-200, -100);
+        this.xPos = p.random(this.windowWidth + 30, this.windowWidth + 100);
+        this.yPos = p.random(0, this.windowHeight);
         this.size = p.random(30, 60);
         this.speed = p.random(1, 5);
     }

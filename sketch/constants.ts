@@ -6,7 +6,7 @@ const LEFT_ARROW = 37;
 const DOWN_ARROW = 40;
 const RIGHT_ARROW = 39;
 const ASTEROIDS_MAX = 30;
-const STARS_MAX = 200;
+const STARS_MAX = 20;
 const BACKGROUND = 30;
 enum MoveDirections {
     Up = 1,

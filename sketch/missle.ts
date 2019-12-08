@@ -1,31 +1,25 @@
 class Missle {
     public xPos: number;
     public yPos: number;
-    public width = 3;
-    public height = 20;
-
+    public width = 20;
+    public height = 2;
     constructor(ship: Ship) {
-        this.xPos = ship.xPos + (ship.width / 2)
-        this.yPos = ship.yPos;
+        this.xPos = ship.xPos + ship.width;
+        this.yPos = ship.yPos + (ship.width / 2);
     }
-
     public draw(p: p5): void {
         p.push();
         p.fill(255,69,0);
         p.ellipse(this.xPos, this.yPos, this.width, this.height);
         p.pop();
     }
-
     public move(): void {
-        this.yPos = this.yPos - 20;
+        this.xPos = this.xPos + 20;
     }
+    public collidesWith(asteroid: Asteroid, p: p5): boolean {
 
-    public collidesWith(asteroid: Asteroid): boolean {
-        const aYMax = asteroid.yPos;
-        const aYMin = asteroid.yPos - asteroid.size;
-        const aXMin = asteroid.xPos;
-        const aXMax = asteroid.xPos + asteroid.size;
+        return false;
 
-        return false; 
+        
     }
 }

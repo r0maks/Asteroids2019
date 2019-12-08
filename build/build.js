@@ -6,14 +6,14 @@ var Asteroid = (function () {
         this.reset(p);
     }
     Asteroid.prototype.move = function (p) {
-        this.yPos = this.yPos + this.speed;
-        if (this.yPos > this.windowHeight) {
+        this.xPos = this.xPos - this.speed;
+        if (this.xPos < 0) {
             this.reset(p);
         }
     };
     Asteroid.prototype.reset = function (p) {
-        this.xPos = p.random(0, this.windowWidth);
-        this.yPos = p.random(-200, -100);
+        this.xPos = p.random(this.windowWidth + 30, this.windowWidth + 100);
+        this.yPos = p.random(0, this.windowHeight);
         this.size = p.random(30, 60);
         this.speed = p.random(1, 5);
     };
@@ -28,7 +28,7 @@ var LEFT_ARROW = 37;
 var DOWN_ARROW = 40;
 var RIGHT_ARROW = 39;
 var ASTEROIDS_MAX = 30;
-var STARS_MAX = 200;
+var STARS_MAX = 20;
 var BACKGROUND = 30;
 var MoveDirections;
 (function (MoveDirections) {
@@ -52,10 +52,10 @@ var ASTEROID_TYPES = [
 ];
 var Missle = (function () {
     function Missle(ship) {
-        this.width = 3;
-        this.height = 20;
-        this.xPos = ship.xPos + (ship.width / 2);
-        this.yPos = ship.yPos;
+        this.width = 20;
+        this.height = 2;
+        this.xPos = ship.xPos + ship.width;
+        this.yPos = ship.yPos + (ship.width / 2);
     }
     Missle.prototype.draw = function (p) {
         p.push();
@@ -64,13 +64,9 @@ var Missle = (function () {
         p.pop();
     };
     Missle.prototype.move = function () {
-        this.yPos = this.yPos - 20;
+        this.xPos = this.xPos + 20;
     };
-    Missle.prototype.collidesWith = function (asteroid) {
-        var aYMax = asteroid.yPos;
-        var aYMin = asteroid.yPos - asteroid.size;
-        var aXMin = asteroid.xPos;
-        var aXMax = asteroid.xPos + asteroid.size;
+    Missle.prototype.collidesWith = function (asteroid, p) {
         return false;
     };
     return Missle;
@@ -202,12 +198,12 @@ var sketch = function (p) {
         handleKeyboardInput();
     };
     function renderAll() {
+        handleStars();
         ship.draw(p, shipImg);
         handleCollisions();
         showHealth();
         handleMissles();
         handleAsteroids();
-        handleStars();
     }
     function handleMissles() {
         missiles = missiles.filter(function (m) { return m.yPos <= p.windowHeight; });
@@ -219,7 +215,7 @@ var sketch = function (p) {
     function handleCollisions() {
         missiles.forEach(function (missle) {
             asteroids.forEach(function (asteroid) {
-                if (missle.collidesWith(asteroid)) {
+                if (missle.collidesWith(asteroid, p)) {
                     asteroid.reset(p);
                 }
             });
@@ -274,23 +270,24 @@ var sketch = function (p) {
 var sketchP = new p5(sketch);
 var Star = (function () {
     function Star(p) {
-        this.width = p.random(1, 3);
-        this.height = p.random(15, 20);
+        this.width = p.random(15, 60);
+        this.height = p.random(1, 2);
         this.windowHeight = p.windowHeight;
-        this.xPos = p.random(0, p.windowWidth);
-        this.yPos = p.random(-100, p.windowHeight);
-        this.speed = p.random(0, 8);
+        this.windowWidth = p.windowWidth;
+        this.xPos = p.random(0, this.windowWidth);
+        this.yPos = p.random(-100, this.windowHeight);
+        this.speed = p.random(10, 30);
     }
     Star.prototype.draw = function (p) {
         p.push();
-        p.fill(42);
+        p.fill(80);
         p.ellipse(this.xPos, this.yPos, this.width, this.height);
         p.pop();
     };
     Star.prototype.move = function () {
-        this.yPos = this.yPos + this.speed;
-        if (this.yPos > this.windowHeight) {
-            this.yPos = 0;
+        this.xPos = this.xPos - this.speed;
+        if (this.xPos < 0) {
+            this.xPos = this.windowWidth;
         }
     };
     return Star;

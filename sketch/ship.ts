@@ -20,17 +20,14 @@ class Ship {
         this.xSpeed = 5;
         this.ySpeed = 5;
     }
-
     public draw(p: p5, image: p5.Image) {
 
         this.shiftPosition();
         this.render(p, image);
     }
-
     private render(p: p5, image: p5.Image) {
         p.image(image, this.xPos, this.yPos, this.width, this.height);
     }
-
     public get top(): number {
         return this.yPos;
     }
@@ -83,7 +80,6 @@ class Ship {
             }
         });
     }
-
     private addDirectionHistory(direction: number) {
         if (this.lastDirections.length > 2) {
             this.lastDirections.shift();
