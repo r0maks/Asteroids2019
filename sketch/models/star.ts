@@ -7,7 +7,7 @@ class Star {
     public windowHeight: number;
     public windowWidth: number;
     constructor(p: p5) {
-        this.width = p.random(15, 60);
+        this.width = p.random(40, 60);
         this.height = p.random(1, 2);
         this.windowHeight = p.windowHeight;
         this.windowWidth = p.windowWidth;
@@ -17,6 +17,7 @@ class Star {
     }
     public draw(p: p5) {
         p.push();
+        p.noStroke();
         p.fill(80);
         p.ellipse(this.xPos, this.yPos, this.width, this.height);
         p.pop();

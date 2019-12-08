@@ -1,4 +1,5 @@
 class Asteroid {
+    // coordinates are top left corner of the asteroid
     public xPos: number;
     public yPos: number;
     public size: number;
@@ -12,6 +13,19 @@ class Asteroid {
         this.reset(p);
     }
 
+    public get top(): number {
+        return this.yPos;
+    }
+    public get left(): number {
+        return this.xPos;
+    }
+    public get right(): number {
+        return this.xPos + this.size;
+    }
+    public get bottom(): number {
+        return this.yPos + this.size;
+    }
+
     public move(p: p5) {
         this.xPos = this.xPos - this.speed;
         if (this.xPos < 0) {
@@ -20,7 +34,7 @@ class Asteroid {
     }
 
     public reset(p: p5) {
-        this.xPos = p.random(this.windowWidth + 30, this.windowWidth + 100);
+        this.xPos = p.random(this.windowWidth + 100, this.windowWidth + 300);
         this.yPos = p.random(0, this.windowHeight);
         this.size = p.random(30, 60);
         this.speed = p.random(1, 5);

@@ -10,6 +10,7 @@ class Ship {
     public lastDirections = [] as number[];
     public windowHeight: number;
     public windowWidth: number;
+    public score = 0;
 
     constructor(p: p5) {
         this.windowHeight = p.windowHeight;

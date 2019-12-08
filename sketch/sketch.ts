@@ -4,6 +4,7 @@ var sketch = (p: p5) => {
     let missiles = [] as Missle[];
     let asteroids = [] as Asteroid[];
     let stars = [] as Star[];
+    let explostionParticles = [] as IExplosionParticle[];
     let shipImg: p5.Image;
     let asteroidImages = [] as p5.Image[];
     let asteroid1: p5.Image;
@@ -19,7 +20,6 @@ var sketch = (p: p5) => {
 
     p.setup = () => {
         p.createCanvas(p.windowWidth, p.windowHeight);
-        p.noStroke();
         ship = new Ship(p);
     }
 
@@ -28,23 +28,38 @@ var sketch = (p: p5) => {
     }
 
     p.draw = () => {
-        p.background(BACKGROUND);
+        renderStaticBackgroundLayer();
+        renderDynamicBackgroundLayer();
         renderAll();
         handleKeyboardInput();
     }
 
-    function renderAll() {
+    function renderStaticBackgroundLayer() {
+        p.background(BACKGROUND);
+        p.push();
+        p.stroke(255);
+        for (let index = 0; index < 15; index++) {
+            p.point(p.random(0, p.windowWidth), p.random(0, p.windowHeight));
+        }
+        p.pop();
+    }
+
+    function renderDynamicBackgroundLayer() {
         handleStars();
+    }
+
+    function renderAll() {
         ship.draw(p, shipImg);
         handleCollisions();
-        showHealth();
+        handleExplosions(p, explostionParticles);
+        showHealth(p, ship);
         handleMissles();
         handleAsteroids();
     }
 
     function handleMissles() {
         // filter out the missles that are off screen
-        missiles = missiles.filter(m => m.yPos <= p.windowHeight);
+        missiles = missiles.filter(m => m.yPos <= p.windowHeight && !m.isDestroyed);
         missiles.forEach(missle => {
             missle.draw(p);
             missle.move();
@@ -52,10 +67,13 @@ var sketch = (p: p5) => {
     }
 
     function handleCollisions() {
-        missiles.forEach(missle => {
+        missiles.filter(m => !m.isDestroyed).forEach(missile => {
             asteroids.forEach(asteroid => {
-                if (missle.collidesWith(asteroid, p)) {
+                if (missile.collidesWith(asteroid)) {
                     asteroid.reset(p);
+                    missile.destroy();
+                    ship.score++;
+                    addBasicExplosion(missile.tip.xPos, missile.tip.yPos)
                 }
             });
         });
@@ -109,13 +127,12 @@ var sketch = (p: p5) => {
         }
     }
 
-    function showHealth() {
-        p.push();
-        p.rect(25, 25, 100, 50);
-        p.fill(255, 200, 0);
-        p.rect(25, 25, ship.health, 50);
-        p.pop();
+    function addBasicExplosion(xPos: number, yPos: number): void {
+        for (var i = 0; i < 20; i++) {
+            explostionParticles.push(new BasicExplosionParticle(p, xPos, yPos));
+        }
     }
+
 }
 
 var sketchP = new p5(sketch);
