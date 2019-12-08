@@ -10,7 +10,6 @@ class Asteroid {
         this.windowHeight = p.windowHeight;
         this.windowWidth = p.windowWidth;
         this.reset(p);
-        // TODO: set random asteroid type
     }
 
     public move(p: p5) {
@@ -22,7 +21,7 @@ class Asteroid {
 
     public reset(p: p5) {
         this.xPos = p.random(0, this.windowWidth);
-        this.yPos = -100;
+        this.yPos = p.random(-200, -100);
         this.size = p.random(30, 60);
         this.speed = p.random(1, 5);
     }

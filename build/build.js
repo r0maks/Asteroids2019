@@ -13,7 +13,7 @@ var Asteroid = (function () {
     };
     Asteroid.prototype.reset = function (p) {
         this.xPos = p.random(0, this.windowWidth);
-        this.yPos = -100;
+        this.yPos = p.random(-200, -100);
         this.size = p.random(30, 60);
         this.speed = p.random(1, 5);
     };
@@ -42,11 +42,13 @@ var MissleTypes;
     MissleTypes[MissleTypes["Basic"] = 1] = "Basic";
 })(MissleTypes || (MissleTypes = {}));
 var SHIP_IMG = 'assets/ship.png';
-var ASTEROID_0 = 'assets/asteroid1.png';
-var ASTEROID_1 = 'assets/asteroid2.png';
+var ASTEROID_0 = 'assets/asteroid0.png';
+var ASTEROID_1 = 'assets/asteroid1.png';
+var ASTEROID_2 = 'assets/asteroid2.png';
 var ASTEROID_TYPES = [
     ASTEROID_0,
-    ASTEROID_1
+    ASTEROID_1,
+    ASTEROID_2
 ];
 var Missle = (function () {
     function Missle(ship) {
@@ -83,30 +85,65 @@ var Ship = (function () {
         this.xPos = this.windowWidth / 2;
         this.yPos = this.windowHeight / 2;
         this.health = 100;
-        this.xSpeed = 3;
+        this.xSpeed = 5;
         this.ySpeed = 5;
     }
     Ship.prototype.draw = function (p, image) {
-        this.handleFloat();
+        this.shiftPosition();
+        this.render(p, image);
+    };
+    Ship.prototype.render = function (p, image) {
         p.image(image, this.xPos, this.yPos, this.width, this.height);
     };
+    Object.defineProperty(Ship.prototype, "top", {
+        get: function () {
+            return this.yPos;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Ship.prototype, "left", {
+        get: function () {
+            return this.xPos;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Ship.prototype, "right", {
+        get: function () {
+            return this.xPos + this.width;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Ship.prototype, "bottom", {
+        get: function () {
+            return this.yPos + this.height;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Ship.prototype.moveRight = function () {
-        this.xPos = this.xPos + this.xSpeed;
-        this.addDirectionHistory(MoveDirections.Right);
+        if (this.right < this.windowWidth) {
+            this.addDirectionHistory(MoveDirections.Right);
+        }
     };
     Ship.prototype.moveLeft = function () {
-        this.xPos = this.xPos - this.xSpeed;
-        this.addDirectionHistory(MoveDirections.Left);
+        if (this.left > 0) {
+            this.addDirectionHistory(MoveDirections.Left);
+        }
     };
     Ship.prototype.moveUp = function () {
-        this.yPos = this.yPos - this.ySpeed;
-        this.addDirectionHistory(MoveDirections.Up);
+        if (this.top > 0) {
+            this.addDirectionHistory(MoveDirections.Up);
+        }
     };
     Ship.prototype.moveDown = function () {
-        this.yPos = this.yPos + this.ySpeed;
-        this.addDirectionHistory(MoveDirections.Down);
+        if (this.bottom < this.windowHeight) {
+            this.addDirectionHistory(MoveDirections.Down);
+        }
     };
-    Ship.prototype.handleFloat = function () {
+    Ship.prototype.shiftPosition = function () {
         var _this = this;
         this.lastDirections.slice().reverse().forEach(function (direction) {
             switch (direction) {
@@ -258,4 +295,7 @@ var Star = (function () {
     };
     return Star;
 }());
+function isOutOfBounds(left, top, right, bottom, windowWidth, windowHeight) {
+    return (left < 0 || right > windowWidth || top < 0 || bottom > windowHeight);
+}
 //# sourceMappingURL=build.js.map

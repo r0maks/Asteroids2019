@@ -19,10 +19,13 @@ enum MissleTypes {
 }
 // File assets
 const SHIP_IMG = 'assets/ship.png';
-const ASTEROID_0 = 'assets/asteroid1.png';
-const ASTEROID_1 = 'assets/asteroid2.png';
+const ASTEROID_0 = 'assets/asteroid0.png';
+const ASTEROID_1 = 'assets/asteroid1.png';
+const ASTEROID_2 = 'assets/asteroid2.png';
+
 
 const ASTEROID_TYPES = [
     ASTEROID_0,
-    ASTEROID_1
+    ASTEROID_1,
+    ASTEROID_2
 ];

@@ -17,37 +17,53 @@ class Ship {
         this.xPos = this.windowWidth / 2;
         this.yPos = this.windowHeight / 2;
         this.health = 100;
-        this.xSpeed = 3;
+        this.xSpeed = 5;
         this.ySpeed = 5;
     }
 
     public draw(p: p5, image: p5.Image) {
-        this.handleFloat();
+
+        this.shiftPosition();
+        this.render(p, image);
+    }
+
+    private render(p: p5, image: p5.Image) {
         p.image(image, this.xPos, this.yPos, this.width, this.height);
-        // TODO: handle off canvas limits
     }
 
+    public get top(): number {
+        return this.yPos;
+    }
+    public get left(): number {
+        return this.xPos;
+    }
+    public get right(): number {
+        return this.xPos + this.width;
+    }
+    public get bottom(): number {
+        return this.yPos + this.height;
+    }
     public moveRight() {
-        this.xPos = this.xPos + this.xSpeed;
-        this.addDirectionHistory(MoveDirections.Right);
+        if (this.right < this.windowWidth) {
+            this.addDirectionHistory(MoveDirections.Right);
+        }
     }
-
     public moveLeft() {
-        this.xPos = this.xPos - this.xSpeed;
-        this.addDirectionHistory(MoveDirections.Left);
+        if (this.left > 0) {
+            this.addDirectionHistory(MoveDirections.Left);
+        }
     }
-
     public moveUp() {
-        this.yPos = this.yPos - this.ySpeed;
-        this.addDirectionHistory(MoveDirections.Up);
+        if (this.top > 0) {
+            this.addDirectionHistory(MoveDirections.Up);
+        }
     }
-
     public moveDown() {
-        this.yPos = this.yPos + this.ySpeed;
-        this.addDirectionHistory(MoveDirections.Down);
+        if (this.bottom < this.windowHeight) {
+            this.addDirectionHistory(MoveDirections.Down);
+        }
     }
-
-    private handleFloat() {
+    private shiftPosition() {
         this.lastDirections.slice().reverse().forEach(direction => {
             switch (direction) {
                 case MoveDirections.Up:
