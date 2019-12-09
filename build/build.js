@@ -71,7 +71,7 @@ var sketch = function (p) {
     function renderAll() {
         ship.draw(p, shipImg);
         handleCollisions();
-        handleExplosions(p, explostionParticles);
+        explostionParticles = handleExplosions(p, explostionParticles);
         showHealth(p, ship);
         handleMissles();
         handleAsteroids();
@@ -399,7 +399,7 @@ function handleExplosions(p, explosionParticles) {
         point.yDrift = point.yDrift + gravity;
         point.age++;
     }
-    explosionParticles = explosionParticles.filter(function (e) { return e.age > 10; });
+    return explosionParticles.filter(function (e) { return e.age < 10; });
 }
 function showScoreBoardInfo(p, ship) {
     showHealth(p, ship);

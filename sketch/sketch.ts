@@ -51,7 +51,7 @@ var sketch = (p: p5) => {
     function renderAll() {
         ship.draw(p, shipImg);
         handleCollisions();
-        handleExplosions(p, explostionParticles);
+        explostionParticles = handleExplosions(p, explostionParticles);
         showHealth(p, ship);
         handleMissles();
         handleAsteroids();

@@ -2,7 +2,7 @@ const accel = 0.9;
 const gravity = 0.;
 const bounce = -1.1;
 
-function handleExplosions(p: p5, explosionParticles: IExplosionParticle[]) {
+function handleExplosions(p: p5, explosionParticles: IExplosionParticle[]): IExplosionParticle[] {
     for (var i = 0; i < explosionParticles.length; i++) {
         var point = explosionParticles[i]; // get a blob from the list
 
@@ -28,5 +28,5 @@ function handleExplosions(p: p5, explosionParticles: IExplosionParticle[]) {
         point.age++; // increase your 'age' counter
     }
 
-    explosionParticles = explosionParticles.filter(e => e.age > 10);
+    return explosionParticles.filter(e => e.age < 10);
 }
